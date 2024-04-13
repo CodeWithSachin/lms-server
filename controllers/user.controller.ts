@@ -4,12 +4,11 @@ import userModel, { IUser } from "../models/user.model";
 import ErrorHandler from "../utils/ErrorHandler";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import * as jwt from "jsonwebtoken";
-import * as ejs from "ejs";
-import path = require("path");
 import sendMail from "../utils/sendMails";
 import { accessTokenOption, refreshTokenOption, sendToken } from "../utils/jwt";
 import { redis } from "../utils/redis";
 import { getUserById } from "../services/user.service";
+import cloudinary from "cloudinary";
 
 // REGISTER USER
 interface IUserRegistration {
@@ -289,7 +288,8 @@ export const updateUserInfo = CatchAsyncError(
     }
   }
 );
-// UPDATE USER INFO
+
+// UPDATE USER Password
 
 interface IUpdatePassword {
   oldPassword: string;
@@ -320,6 +320,59 @@ export const updatePassword = CatchAsyncError(
         user,
       });
     } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+// UPDATE USER AVATAR
+
+export const updateProfilePicture = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { avatar } = req.body;
+      const userId = req.user?._id;
+
+      // Check if avatar is provided and user exists
+      if (!avatar) {
+        return next(new ErrorHandler("Avatar is required", 400));
+      }
+
+      const user = await userModel.findById(userId);
+      if (!user) {
+        return next(new ErrorHandler("User not found", 404));
+      }
+
+      // Destroy previous avatar if exists
+      if (user.avatar?.public_id) {
+        await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+      }
+
+      // Upload new avatar to Cloudinary
+      const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+        folder: "avatar",
+        width: 150,
+      });
+
+      // Update user's avatar information
+      user.avatar = {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      };
+
+      // Save updated user
+      await user.save();
+
+      // Update user data in Redis cache
+      await redis.set(userId, JSON.stringify(user));
+
+      // Respond with success and updated user data
+      res.status(200).json({
+        success: true,
+        user,
+      });
+    } catch (error: any) {
+      // Handle errors
       return next(new ErrorHandler(error.message, 400));
     }
   }
