@@ -13,3 +13,12 @@ export const createCourse = CatchAsyncError(
 		});
 	}
 );
+
+// GET ALL COURSES --ONLY ADMIN
+export const getAllCoursesService = async (res: Response) => {
+	const course = await courseModel.find().sort({ createdAt: -1 });
+	res.status(200).json({
+		success: true,
+		course,
+	});
+};

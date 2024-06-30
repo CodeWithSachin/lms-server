@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+			integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
+		/>
+		<title>Email Confirmation</title>
+		<style>
+			body {
+				font-family: sans-serif;
+				background-color: #f0f0f0;
+				padding: 32px 16px;
+				min-width: 100vw;
+				min-height: 100vh;
+				margin: 0;
+			}
+
+			.app {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.mail__wrapper {
+				margin: auto;
+			}
+
+			.mail__content {
+				border-radius: 7px;
+				background-color: #4b355d;
+				padding: 32px;
+				width: 40rem;
+				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			}
+
+			.content__header {
+				text-align: center;
+				border-bottom: 1px solid #e5e5e5;
+			}
+
+			.header__title {
+				color: #fff;
+				font-size: 0.875rem;
+				font-weight: bold;
+			}
+
+			.content__header h1 {
+				font-size: 2rem;
+				color: #fff;
+				height: 5rem;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.content__body {
+				padding: 32px 0;
+				color: #fff;
+				border-bottom: 1px solid #e5e5e5;
+			}
+
+			.content__body p {
+				color: #fff;
+				margin-bottom: 16px;
+			}
+
+			.content__body button {
+				color: #fff;
+				color: white;
+				font-size: 0.875rem;
+				background-color: #ff0000;
+				border-radius: 4px;
+				width: 100%;
+				padding: 16px;
+				margin: 32px 0;
+				border: none;
+				cursor: pointer;
+			}
+
+			.content__footer {
+				color: #fff;
+				margin-top: 32px;
+				text-align: center;
+				color: #555;
+			}
+
+			.content__footer h3 {
+				color: #fff;
+				font-size: 1.125rem;
+				margin-bottom: 16px;
+			}
+
+			.mail__meta {
+				text-align: center;
+				color: #fff;
+				font-size: 0.875rem;
+				color: #555;
+				margin-top: 32px;
+			}
+
+			.meta__social {
+				display: flex;
+				color: #fff;
+				justify-content: center;
+				margin: 16px 0;
+			}
+
+			.meta__social a {
+				display: flex;
+				color: #fff;
+				align-items: center;
+				justify-content: center;
+				width: 32px;
+				height: 32px;
+				background-color: black;
+				color: white;
+				border-radius: 50%;
+				text-decoration: none;
+				margin-right: 16px;
+			}
+
+			.meta__social a:last-child {
+				margin-right: 0;
+				color: #fff;
+			}
+
+			.meta__help a {
+				color: #333;
+				text-decoration: none;
+			}
+			td {
+				width: 33%;
+				gap: 10px;
+				border: 2px #fff solid;
+				padding: 5px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="app">
+			<div class="mail__wrapper">
+				<div class="mail__content">
+					<div class="content__header">
+						<div class="header__title">ART_0_GRAPHY</div>
+						<h1>Order Confirmation</h1>
+						<p style="text-align: start; margin-bottom: 5px; color: #fff">
+							Order #: <%= order._id%>
+						</p>
+						<p style="text-align: start; color: #fff">
+							Order Date: <%= order.date%>
+						</p>
+					</div>
+
+					<div class="content__body">
+						<table>
+							<tr>
+								<td>Item</td>
+								<td>Qty</td>
+								<td>Cost</td>
+							</tr>
+							<tr>
+								<td><%= order.name%></td>
+								<td>1</td>
+								<td><%= order.price%></td>
+							</tr>
+						</table>
+						<p style="padding: 20px">Total Cost: <b><%=order.price%></b></p>
+					</div>
+
+					<div class="content__footer">
+						<h3>Thanks for using The App!</h3>
+						<p style="color: #fff">www.art_0_graphy.com</p>
+					</div>
+				</div>
+
+				<div class="mail__meta">
+					<div class="meta__social">
+						<a href="#"><i class="fab fa-facebook-f"></i></a>
+						<a href="#"><i class="fab fa-instagram"></i></a>
+						<a href="#"><i class="fab fa-twitter"></i></a>
+					</div>
+
+					<div class="meta__help">
+						<p>
+							Questions or concerns?
+							<a href="mailto:help@theapp.io">help@art_0_graphy.com</a> <br />
+							Want to quit getting updates? <a href="#">Unsubscribe</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
