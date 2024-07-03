@@ -59,7 +59,7 @@ export const updateCourse = CatchAsyncError(
 			);
 
 			res.status(201).json({
-				status: true,
+				success: true,
 				course,
 			});
 		} catch (error: any) {
@@ -77,7 +77,7 @@ export const getSingleCourse = CatchAsyncError(
 			if (isCourseCacheExist) {
 				const course = JSON.parse(isCourseCacheExist);
 				res.status(200).json({
-					status: true,
+					success: true,
 					course,
 				});
 			} else {
@@ -86,9 +86,9 @@ export const getSingleCourse = CatchAsyncError(
 					.select(
 						"-courseData.suggestion -courseData.videoUrl -courseData.links -courseData.questions"
 					);
-				await redis.set(courseId, JSON.stringify(course));
+				await redis.set(courseId, JSON.stringify(course), "EX", 604800);
 				res.status(201).json({
-					status: true,
+					success: true,
 					course,
 				});
 			}
@@ -105,7 +105,7 @@ export const getAllCourse = CatchAsyncError(
 			if (isCourseCacheExist) {
 				const course = JSON.parse(isCourseCacheExist);
 				res.status(200).json({
-					status: true,
+					success: true,
 					course,
 				});
 			} else {
@@ -116,7 +116,7 @@ export const getAllCourse = CatchAsyncError(
 					);
 				await redis.set("allCourses", JSON.stringify(course));
 				res.status(201).json({
-					status: true,
+					success: true,
 					course,
 				});
 			}
@@ -143,7 +143,7 @@ export const getCourseByUser = CatchAsyncError(
 			const course = await courseModel.findById(courseId);
 			const content = course?.courseData;
 			res.status(200).json({
-				status: true,
+				success: true,
 				content,
 			});
 		} catch (error: any) {
@@ -273,7 +273,7 @@ export const addAnswer = CatchAsyncError(
 				}
 			}
 			res.status(200).json({
-				status: true,
+				success: true,
 				course,
 			});
 		} catch (error: any) {
@@ -336,7 +336,7 @@ export const addReview = CatchAsyncError(
 			// Create Notification
 
 			res.status(200).json({
-				status: true,
+				success: true,
 				course,
 			});
 		} catch (error: any) {
@@ -376,7 +376,7 @@ export const addReplyToReview = CatchAsyncError(
 			review.commentReplies?.push(replyData);
 			await course?.save();
 			res.status(200).json({
-				status: true,
+				success: true,
 				course,
 			});
 		} catch (error: any) {
@@ -408,7 +408,7 @@ export const deleteCourse = CatchAsyncError(
 			await course.deleteOne({ id });
 			await redis.del(id);
 			res.status(200).json({
-				status: true,
+				success: true,
 				message: "Course deleted successfully",
 			});
 		} catch (error: any) {

@@ -13,7 +13,7 @@ export const getUserAnalytics = CatchAsyncError(
 			const users = await generateLast12MonthData(userModel);
 
 			res.status(200).json({
-				status: true,
+				success: true,
 				users,
 			});
 		} catch (error: any) {
@@ -29,7 +29,7 @@ export const getCourseAnalytics = CatchAsyncError(
 			const course = await generateLast12MonthData(courseModel);
 
 			res.status(200).json({
-				status: true,
+				success: true,
 				course,
 			});
 		} catch (error: any) {
@@ -45,7 +45,7 @@ export const getOrderAnalytics = CatchAsyncError(
 			const order = await generateLast12MonthData(orderModel);
 
 			res.status(200).json({
-				status: true,
+				success: true,
 				order,
 			});
 		} catch (error: any) {

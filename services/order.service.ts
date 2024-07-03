@@ -7,7 +7,7 @@ export const newOrder = CatchAsyncError(
 	async (data: Request, res: Response, next: NextFunction) => {
 		const order = await orderModel.create(data);
 		res.status(201).json({
-			status: true,
+			success: true,
 			order,
 		});
 	}
