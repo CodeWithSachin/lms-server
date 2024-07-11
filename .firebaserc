@@ -1,5 +1,17 @@
 {
   "projects": {
-    "default": "art-0-graphy-428810"
-  }
+    "default": "art-0-graphy-428810",
+    "api": "art-0-graphy-428810"
+  },
+  "targets": {
+    "art-0-graphy-428810": {
+      "hosting": {
+        "art-0-graphy-428810": [
+          "art-0-graphy"
+        ]
+      }
+    }
+  },
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
 }
