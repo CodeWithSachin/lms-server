@@ -187,7 +187,9 @@ export const updateAccessToken = CatchAsyncError(
 			}
 			const session = await redis.get(decoded.id as string);
 			if (!session) {
-				return next(new ErrorHandler(message, 400));
+				return next(
+					new ErrorHandler("Please login to access this resource", 400)
+				);
 			}
 			const user = JSON.parse(session);
 			const accessToken = jwt.sign(
@@ -209,9 +211,9 @@ export const updateAccessToken = CatchAsyncError(
 
 			res.cookie("access_token", accessToken, accessTokenOption);
 			res.cookie("refresh_token", refreshToken, refreshTokenOption);
-
+			await redis.set(user._id, JSON.stringify(user), "EX", 604800);
 			res.status(200).json({
-				status: true,
+				success: true,
 				message: "Success",
 				accessToken,
 			});
@@ -284,7 +286,7 @@ export const updateUserInfo = CatchAsyncError(
 			await user?.save();
 			await redis.set(userId, JSON.stringify(user));
 			res.status(201).json({
-				status: true,
+				success: true,
 				user,
 			});
 		} catch (error: any) {
@@ -320,7 +322,7 @@ export const updatePassword = CatchAsyncError(
 			await user.save();
 			await redis.set(userId, JSON.stringify(user));
 			res.status(201).json({
-				status: true,
+				success: true,
 				user,
 			});
 		} catch (error: any) {
@@ -417,7 +419,7 @@ export const deleteUser = CatchAsyncError(
 			await user.deleteOne({ id });
 			await redis.del(id);
 			res.status(200).json({
-				status: true,
+				success: true,
 				message: "User deleted successfully",
 			});
 		} catch (error: any) {

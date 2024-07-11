@@ -12,7 +12,7 @@ export const getNotification = CatchAsyncError(
 				.find()
 				.sort({ createdAt: -1 });
 			res.status(201).json({
-				status: true,
+				success: true,
 				notification,
 			});
 		} catch (error: any) {
@@ -38,7 +38,7 @@ export const updateNotification = CatchAsyncError(
 				.sort({ createdAt: -1 });
 
 			res.status(201).json({
-				status: true,
+				success: true,
 				updateNotification,
 			});
 		} catch (error: any) {
