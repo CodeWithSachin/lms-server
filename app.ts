@@ -17,12 +17,36 @@ app.use(express.json({ limit: "50mb" }));
 // COOKIE PARSER
 app.use(cookieParser());
 
-// CORS
+// const allowedOrigins = process.env.ORIGIN
+// 	? process.env.ORIGIN
+// 	: ["http://localhost:3000", "http://localhost:8000"];
+
+// console.log("Allowed Origins:", allowedOrigins);
+// var corsOptions = {
+// 	origin: function (origin: any, callback: any) {
+// 		if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+// 			callback(null, true);
+// 		} else {
+// 			callback(new Error("Not allowed by CORS"));
+// 		}
+// 	},
+// };
+// console.log("🚀 ~ corsOptionsDelegate ~ corsOptionsDelegate:", corsOptions);
+
 app.use(
 	cors({
-		origin: process.env.ORIGIN,
+		origin: "http://localhost:3000",
+		credentials: true,
 	})
 );
+
+// // CORS
+// app.use(
+// 	cors({
+// 		origin: process.env.ORIGIN,
+// 		credentials: true,
+// 	})
+// );
 
 //ROUTES
 app.use(
