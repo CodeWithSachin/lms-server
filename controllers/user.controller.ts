@@ -51,7 +51,7 @@ export const registerUser = CatchAsyncError(
 				res.status(201).json({
 					success: true,
 					message: `please check your email: ${user.email} to activate your account!`,
-					token,
+					activationToken: token,
 				});
 			} catch (error: any) {
 				return next(new ErrorHandler(error.message, 500));
@@ -68,7 +68,7 @@ interface IActivationToken {
 }
 
 export const createActivationToken = (user: any): IActivationToken => {
-	const activationCode = Math.floor(1000 * Math.random() * 9000).toString();
+	const activationCode = Math.floor(1000 + Math.random() * 9000).toString();
 	const token = jwt.sign(
 		{
 			user,
