@@ -17,34 +17,29 @@ app.use(express.json({ limit: "50mb" }));
 // COOKIE PARSER
 app.use(cookieParser());
 
-// const allowedOrigins = process.env.ORIGIN
-// 	? process.env.ORIGIN
-// 	: ["http://localhost:3000", "http://localhost:8000"];
+const allowedOrigins = (process.env.ORIGIN || "").split(",");
+const corsOptions: cors.CorsOptionsDelegate = function (req, callback) {
+	const origin = req.headers.origin || "";
+	let corsOptions;
+	if (allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
+		corsOptions = {
+			origin: true,
+			credentials: true,
+			optionsSuccessStatus: 200,
+		};
+	} else {
+		corsOptions = { origin: false };
+	}
+	callback(null, corsOptions);
+};
 
-// console.log("Allowed Origins:", allowedOrigins);
-// var corsOptions = {
-// 	origin: function (origin: any, callback: any) {
-// 		if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-// 			callback(null, true);
-// 		} else {
-// 			callback(new Error("Not allowed by CORS"));
-// 		}
-// 	},
-// };
-// console.log("🚀 ~ corsOptionsDelegate ~ corsOptionsDelegate:", corsOptions);
+app.use(cors(corsOptions));
 
-app.use(
-	cors({
-		origin: "http://localhost:3000",
-		credentials: true,
-	})
-);
-
-// // CORS
+// CORS
 // app.use(
 // 	cors({
-// 		origin: process.env.ORIGIN,
-// 		credentials: true,
+// 		origin: "*",
+// 		optionsSuccessStatus: 200,
 // 	})
 // );
 

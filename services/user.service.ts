@@ -26,12 +26,17 @@ export const getAllUserService = async (res: Response) => {
 // UPDATE USER ROLE --ONLY ADMIN
 export const updateUserRoleService = async (
 	res: Response,
-	id: string,
+	email: string,
 	role: string
 ) => {
-	const user = await userModel.findByIdAndUpdate(id, { role }, { new: true });
+	const user = await userModel.findOne({ email });
+	const updatedRole = await userModel.findByIdAndUpdate(
+		user?._id,
+		{ role },
+		{ new: true }
+	);
 	res.status(200).json({
 		success: true,
-		user,
+		updatedRole,
 	});
 };

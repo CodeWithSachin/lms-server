@@ -7,11 +7,9 @@ import { createCourse, getAllCoursesService } from "../services/course.service";
 import courseModel from "../models/course.model";
 import { redis } from "../utils/redis";
 import mongoose from "mongoose";
-import ejs from "ejs";
-import path from "path";
 import sendMail from "../utils/sendMails";
-import { title } from "process";
 import notificationModel from "../models/notification.model";
+import axios from "axios";
 
 // CREATE COURSE
 export const uploadCourse = CatchAsyncError(
@@ -41,7 +39,8 @@ export const updateCourse = CatchAsyncError(
 		try {
 			const data = req.body;
 			const thumbnail = data.thumbnail;
-			if (thumbnail) {
+			const courseData = await courseModel.findById(req.params.id);
+			if (thumbnail && !thumbnail.startsWith("https")) {
 				await cloudinary.v2.uploader.destroy(thumbnail.public_id);
 				const myCloud = await cloudinary.v2.uploader.upload(thumbnail, {
 					folder: "Courses",
@@ -49,6 +48,12 @@ export const updateCourse = CatchAsyncError(
 				data.thumbnail = {
 					public_id: myCloud.public_id,
 					url: myCloud.secure_url,
+				};
+			}
+			if (thumbnail.startsWith("https")) {
+				data.thumbnail = {
+					public_id: courseData?.thumbnail.public_id,
+					url: courseData?.thumbnail.url,
 				};
 			}
 			const courseId = req.params.id;
@@ -101,25 +106,25 @@ export const getSingleCourse = CatchAsyncError(
 export const getAllCourse = CatchAsyncError(
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const isCourseCacheExist = await redis.get("allCourses");
-			if (isCourseCacheExist) {
-				const course = JSON.parse(isCourseCacheExist);
-				res.status(200).json({
-					success: true,
-					course,
-				});
-			} else {
-				const course = await courseModel
-					.find()
-					.select(
-						"-courseData.suggestion -courseData.videoUrl -courseData.links -courseData.questions"
-					);
-				await redis.set("allCourses", JSON.stringify(course));
-				res.status(201).json({
-					success: true,
-					course,
-				});
-			}
+			// const isCourseCacheExist = await redis.get("allCourses");
+			// if (isCourseCacheExist) {
+			// 	const course = JSON.parse(isCourseCacheExist);
+			// 	res.status(200).json({
+			// 		success: true,
+			// 		course,
+			// 	});
+			// } else {
+			const course = await courseModel
+				.find()
+				.select(
+					"-courseData.suggestion -courseData.videoUrl -courseData.links -courseData.questions"
+				);
+			// await redis.set("allCourses", JSON.stringify(course));
+			res.status(201).json({
+				success: true,
+				course,
+			});
+			// }
 		} catch (error: any) {
 			return next(new ErrorHandler(error.message, 500));
 		}
@@ -386,7 +391,7 @@ export const addReplyToReview = CatchAsyncError(
 );
 
 // GET ALL USER --ONLY ADMIN
-export const getAllCourses = CatchAsyncError(
+export const getAdminCourses = CatchAsyncError(
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			getAllCoursesService(res);
@@ -413,6 +418,49 @@ export const deleteCourse = CatchAsyncError(
 			});
 		} catch (error: any) {
 			return next(new ErrorHandler(error.message, 500));
+		}
+	}
+);
+export const generateVideoUrl = CatchAsyncError(
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { videoId } = req.body;
+			if (!videoId) {
+				return next(new ErrorHandler("Video ID is required", 400));
+			}
+
+			const apiUrl = `https://dev.vdocipher.com/api/videos/${videoId}/otp`;
+			const apiSecret = process.env.VDOCIPHER_API_SECRET;
+
+			if (!apiSecret) {
+				return next(new ErrorHandler("API secret is not defined", 500));
+			}
+
+			const response = await axios.post(
+				apiUrl,
+				{ ttl: 300 },
+				{
+					headers: {
+						Accept: "application/json",
+						"Content-Type": "application/json",
+						Authorization: `Apisecret ${apiSecret}`,
+					},
+				}
+			);
+
+			res.status(200).json(response.data);
+		} catch (error: any) {
+			if (axios.isAxiosError(error)) {
+				return next(
+					new ErrorHandler(
+						error.response?.data?.message || "Axios request failed",
+						error.response?.status || 500
+					)
+				);
+			}
+			return next(
+				new ErrorHandler(error.message || "An unknown error occurred", 500)
+			);
 		}
 	}
 );

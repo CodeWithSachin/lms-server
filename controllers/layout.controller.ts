@@ -19,9 +19,12 @@ export const createLayout = CatchAsyncError(
 					folder: "layout",
 				});
 				const banner = {
-					image: {
-						public_id: myCloud.public_id,
-						url: myCloud.secure_url,
+					type,
+					banner: {
+						image: {
+							public_id: myCloud.public_id,
+							url: myCloud.secure_url,
+						},
 					},
 					title,
 					subTitle,
@@ -52,6 +55,10 @@ export const editLayout = CatchAsyncError(
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const { type } = req.body;
+			const isTypeExist = await layoutModel.findOne({ type });
+			if (isTypeExist) {
+				return next(new ErrorHandler(`${type} is already exist`, 400));
+			}
 			if (type === "Banner") {
 				const bannerImage: any = await layoutModel.findOne({ type });
 				const { image, title, subTitle } = req.body;
@@ -62,9 +69,12 @@ export const editLayout = CatchAsyncError(
 					folder: "layout",
 				});
 				const banner = {
-					image: {
-						public_id: myCloud.public_id,
-						url: myCloud.secure_url,
+					type,
+					banner: {
+						image: {
+							public_id: myCloud.public_id,
+							url: myCloud.secure_url,
+						},
 					},
 					title,
 					subTitle,
@@ -103,7 +113,6 @@ export const editLayout = CatchAsyncError(
 					type,
 					category: categoriesItem,
 				});
-				console.log("🚀 ~ data:", data);
 			}
 			res.status(200).json({
 				success: true,
@@ -118,7 +127,7 @@ export const editLayout = CatchAsyncError(
 export const getLayoutByType = CatchAsyncError(
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const layout = await layoutModel.findOne({ type: req.body.type });
+			const layout = await layoutModel.findOne({ type: req.params.type });
 			res.status(200).json({
 				success: true,
 				layout,

@@ -212,11 +212,12 @@ export const updateAccessToken = CatchAsyncError(
 			res.cookie("access_token", accessToken, accessTokenOption);
 			res.cookie("refresh_token", refreshToken, refreshTokenOption);
 			await redis.set(user._id, JSON.stringify(user), "EX", 604800);
-			res.status(200).json({
-				success: true,
-				message: "Success",
-				accessToken,
-			});
+			next();
+			// res.status(200).json({
+			// 	success: true,
+			// 	message: "Success",
+			// 	accessToken,
+			// });
 		} catch (error: any) {
 			return next(new ErrorHandler(error.message, 500));
 		}
@@ -270,24 +271,25 @@ interface IUpdateUserInfo {
 export const updateUserInfo = CatchAsyncError(
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const { name, email } = req.body as IUpdateUserInfo;
+			const { name } = req.body as IUpdateUserInfo;
 			const userId = req.user?._id;
 			const user = await userModel.findById(userId);
-			if (user && email) {
-				const isEmailExist = await userModel.findOne({ email });
-				if (isEmailExist) {
-					return next(new ErrorHandler("Email already exist", 400));
-				}
-				user.email = email;
+
+			if (!user) {
+				return next(new ErrorHandler("User not found", 404));
 			}
-			if (user && name) {
+
+			if (name) {
 				user.name = name;
 			}
-			await user?.save();
-			await redis.set(userId, JSON.stringify(user));
+
+			// Ensure email and other required fields are preserved
+			const updatedUser = await user.save();
+			await redis.set(userId, JSON.stringify(updatedUser));
+
 			res.status(201).json({
 				success: true,
-				user,
+				user: updatedUser,
 			});
 		} catch (error: any) {
 			return next(new ErrorHandler(error.message, 500));
@@ -399,8 +401,8 @@ export const getAllUsers = CatchAsyncError(
 export const updateUserRole = CatchAsyncError(
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const { id, role } = req.body;
-			updateUserRoleService(res, id, role);
+			const { email, role } = req.body;
+			updateUserRoleService(res, email, role);
 		} catch (error: any) {
 			return next(new ErrorHandler(error.message, 500));
 		}
